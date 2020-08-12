@@ -14,4 +14,5 @@ print(getLength([1, [2, 3]]))
 print(getLength([1, [2, [3, 4]]]))
 print(getLength([1, [2, [3, [4, [5, 6]]]]]))
 print(getLength([1, [2], 1, [2], 1]))
+print(getLength([]))
 
