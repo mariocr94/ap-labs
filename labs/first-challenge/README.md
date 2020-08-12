@@ -11,23 +11,17 @@ This is the first challenge in your Advanced Programming Class.
 
 Build Requirements
 ------------------
-```
-# Build Requirements here
-```
+- Have Python3 installed.
 
 
 How to build
 ------------
-```
-# instructions here
-```
+No need to build Python.
 
 
 How to Run
 ----------
-```
-# instructions here
-```
+python nested_array.py (it will run with the tests on https://edabit.com/challenge/yXSTvCNen2DQHyrh6 and show the outputs.)
 
 
 General instructions
