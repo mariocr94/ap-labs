@@ -3,7 +3,11 @@
 #include "logger.h"
 
 int main(int argc, char **argv){
-
+	if(argc < 2){
+		panicf("Please use the correct notation: \n");
+		errorf("./testlogger <1/2/3>\n");
+		return 0;
+	}
     printf("%d\n", atoi(argv[1]));
     switch(atoi(argv[1])) {
     case 1:
