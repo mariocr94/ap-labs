@@ -14,9 +14,11 @@ package main
 
 import (
 	"fmt"
+	"bufio"
 	"log"
-	"os"
+	"flag"
 
+	"os"
 	"gopl.io/ch5/links"
 )
 
@@ -25,43 +27,88 @@ import (
 // enforce a limit of 20 concurrent requests.
 var tokens = make(chan struct{}, 20)
 
-func crawl(url string) []string {
-	fmt.Println(url)
+func crawl(page webPage) []webPage {
 	tokens <- struct{}{} // acquire a token
-	list, err := links.Extract(url)
+	list, err := links.Extract(page.link)
 	<-tokens // release the token
 
 	if err != nil {
 		log.Print(err)
 	}
-	return list
+
+	newList := make([]webPage, 0)
+	for _, nextPage := range (list){
+		wPage := webPage{link: nextPage, depth: page.depth+1}
+		newList = append(newList, wPage)
+	}
+	return newList
 }
 
 //!-sema
 
+type webPage struct{
+	link string
+	depth int
+}
+
 //!+
 func main() {
-	worklist := make(chan []string)
+
+	if len(os.Args) != 4 {
+		fmt.Println("Please use the correct format:")
+		fmt.Println("go run web-crawler.go -depth=<depth> -results=<file.txt> <link>")
+		return
+	}
+
+	depth := flag.Int("depth", 1, "Depth")
+	result := flag.String("results", "results.txt", "Output file")
+	flag.Parse()
+
+	f, err := os.Create(*result)
+	if err != nil {
+		panic(err)
+		return
+	}
+
+	writer := bufio.NewWriter(f)
+	defer writer.Flush()
+	
+	worklist := make(chan []webPage)
 	var n int // number of pending sends to worklist
 
 	// Start with the command-line arguments.
 	n++
-	go func() { worklist <- os.Args[1:] }()
+	go func() { 
+		page := webPage{link: (os.Args[3]), depth: 0}
+		links := make([]webPage, 0)
+		links = append(links, page)
+		worklist <- links 
+		}()
 
 	// Crawl the web concurrently.
 	seen := make(map[string]bool)
 	for ; n > 0; n-- {
 		list := <-worklist
 		for _, link := range list {
-			if !seen[link] {
-				seen[link] = true
+			if !seen[link.link] {
+				seen[link.link] = true
+				writer.WriteString(link.link + "\n")
+				if link.depth == *depth{
+					continue
+				}
 				n++
-				go func(link string) {
+				go func(link webPage) {
 					worklist <- crawl(link)
 				}(link)
 			}
 		}
 	}
+	writer.Flush()
+	err = f.Close()
+	if err!= nil {
+		panic(err)
+	}
+	
 }
 
 //!-
