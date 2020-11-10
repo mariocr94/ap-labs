@@ -7,7 +7,7 @@ import (
 var token = make(chan string)
 
 func main() {
-	maxStages := 10000000;
+	maxStages := 1000000;
 	first := make(chan time.Time)
 	fmt.Println("Maximum number of pipeline stages   : ", maxStages)
 	go pipeline(first, 0, maxStages)
